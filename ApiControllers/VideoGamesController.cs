@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WebApp.Data;
 using WebApp.Models;
 //https://www.youtube.com/watch?v=hZDqJJ5tZeg
 namespace WebApp.ApiControllers
@@ -10,42 +12,29 @@ namespace WebApp.ApiControllers
     [Route("api/[controller]")]
     public class VideoGamesController : Controller
     {
-        private static List<VideoGame> _videoGames  = new List<VideoGame>(){
-                   new VideoGame()
-                   {
-                       Id=1,
-                       Title="Super Mario 634",
-                        PublishedOn = new DateTime(1996,1,1),
-                        Platform = "x64"
+        //TODO Replace with EF Core.
+        
+        private Context _context = null;
 
-                   },
-                   new VideoGame()
-                   {
-                       Id=2,
-                       Title="Resident Evil",
-                        PublishedOn = new DateTime(1994,1,1),
-                        Platform = "Playstation"
-                    },
-                    new VideoGame()
-                   {
-                       Id=3,
-                       Title="Halo",
-                        PublishedOn = new DateTime(2000,1,1),
-                        Platform = "XBox"
-                    } 
-            };
+        public VideoGamesController(Context context)
+        {
+            _context = context;
+        }
         [HttpGet]
         public IActionResult Get()
         {
-            
+            var videoGames = _context.VideoGames
+                                     .Include(vg => vg.Platform)
+                                     .OrderBy(vg => vg.Title)
+                                     .ToList();
             //Http Status code 200 ok
-            return Ok(_videoGames);
+            return Ok(videoGames);
         }
 
         [HttpGet("{id}")]
         public IActionResult Get(int id){
             
-            var videoGame = _videoGames.Where(vg => vg.Id == id).SingleOrDefault();
+            var videoGame = _context.VideoGames.Where(vg => vg.Id == id).SingleOrDefault();
 
             //TODO Return 404 if video game is not found
             if(videoGame == null)
@@ -62,9 +51,10 @@ namespace WebApp.ApiControllers
             
             //TODO set the Id value
             //HACK set the id value
-            videoGame.Id = _videoGames.Count() + 1;
+            //videoGame.Id = _videoGames.Count() + 1;
 
-            _videoGames.Add(videoGame);
+            _context.VideoGames.Add(videoGame);
+            _context.SaveChanges();
             
             //https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
             //http://localhost:5000/api/videogames/1
