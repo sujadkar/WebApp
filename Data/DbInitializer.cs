@@ -10,7 +10,7 @@ namespace WebApp.Data
     {
         public static void Initialize(this Context context)
         {
-            context.Database.EnsureCreated();
+           // context.Database.EnsureCreated();
             
             //TODO Seed Data.
             var platform = new Platform{Id=1,Name = "N64"};

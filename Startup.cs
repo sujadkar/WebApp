@@ -33,13 +33,18 @@ namespace WebApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //var connection = @"Server=localhost;Database=VideoGames;User Id=sa;Password=sujay";
             services.AddDbContext<Context>(options => {
-                options.UseSqlite("Filename=./VideoGames.db");//"Data Source=VideoGames.db");
+                options.UseSqlServer("Server=localhost;Database=VideoGames;User Id=sa;Password=sujay");
+                //options.UseSqlite("Filename=./VideoGames.db");//"Data Source=VideoGames.db");
             });
+
+
 
             //Enable CORS.
             services.AddCors();
             
+
              var corsBuilder = new CorsPolicyBuilder();
             corsBuilder.AllowAnyHeader();
             corsBuilder.AllowAnyMethod();
@@ -66,6 +71,8 @@ namespace WebApp
                     .AddJsonOptions(options => 
                         options.SerializerSettings.ReferenceLoopHandling = 
                             ReferenceLoopHandling.Ignore);
+
+            //services.AddAutoMapper(typeof(Startup));                
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,14 +81,16 @@ namespace WebApp
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
+            app.UseDeveloperExceptionPage();
+                
+            // if (env.IsDevelopment())
+            // {
+            //     app.UseDeveloperExceptionPage();
+            // }
+            // else
+            // {
+            //     app.UseExceptionHandler("/Home/Error");
+            // }
 
             //order imp
             app.UseDefaultFiles();
@@ -100,7 +109,7 @@ namespace WebApp
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            if(env.IsDevelopment())
+            //if(env.IsDevelopment())
             {
                context.Initialize();     
             }

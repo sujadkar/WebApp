@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
+using WebApp.DTOs;
 using WebApp.Models;
 //https://www.youtube.com/watch?v=hZDqJJ5tZeg
 namespace WebApp.ApiControllers
@@ -44,21 +45,28 @@ namespace WebApp.ApiControllers
 
         //POST
         [HttpPost]
-        public IActionResult Post([FromBody] VideoGame videoGame)
+        public IActionResult Post([FromBody] VideoGameDTO videoGameDTO)
         {
-            if(videoGame == null)
+            if(videoGameDTO == null)
                 return BadRequest("Bad"); //400
-            
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState); //400            
             //TODO set the Id value
             //HACK set the id value
             //videoGame.Id = _videoGames.Count() + 1;
-
-            _context.VideoGames.Add(videoGame);
+            
+            //TODO switch to using Automapper
+            var videoGameModel = new WebApp.Models.VideoGame(){
+                   Title = videoGameDTO.Title,
+                   PublishedOn = videoGameDTO.PublishedOn.Value,
+                   PlatformId = videoGameDTO.PlatformId.Value 
+            };
+            _context.VideoGames.Add(videoGameModel);
             _context.SaveChanges();
             
             //https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
             //http://localhost:5000/api/videogames/1
-            return Created("api/videogames/"+ videoGame.Id,videoGame); //201
+            return Created("api/videogames/"+ videoGameModel.Id,videoGameModel); //201
         }
 
 
